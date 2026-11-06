@@ -1,0 +1,28 @@
+name: Sign Artifact with Cosign
+
+on:
+  push:
+    branches: [ main ]
+  # Uncomment below if you want to trigger manually from the UI
+  # workflow_dispatch:
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write # This is CRITICAL for OIDC signing
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Upload artifact for signing
+        uses: sigstore/actions/cosign-upload@main
+        with:
+          # Replace 'your-file-name.exe' with the actual name of your file
+          file: Invitation.exe 
+          
+          # Optional: Add a note or description
+          message: "Signed for deployment"
