@@ -1,4 +1,4 @@
-name: Sign with Cosign
+name: Sign with Cosign (Modern)
 
 on:
   push:
@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      id-token: write # Required for OIDC signing
+      id-token: write # Critical for OIDC
       packages: write
 
     steps:
@@ -26,19 +26,16 @@ jobs:
       - name: Sign the artifact
         id: sign
         run: |
-          # Replace 'your-file.exe' with your actual file name
           FILE_NAME="Invitation.exe"
           
-          # Sign the file using keyless mode (OIDC)
+          # Use --bundle to output a single file containing both sig and cert
           cosign sign-blob \
             --yes \
-            --output-signature "${FILE_NAME}.sig" \
-            --output-certificate "${FILE_NAME}.cert" \
+            --bundle "${FILE_NAME}.sig.bundle" \
             "$FILE_NAME"
           
           echo "signed_file=${FILE_NAME}" >> $GITHUB_OUTPUT
-          echo "signature=${FILE_NAME}.sig" >> $GITHUB_OUTPUT
-          echo "certificate=${FILE_NAME}.cert" >> $GITHUB_OUTPUT
+          echo "bundle=${FILE_NAME}.sig.bundle" >> $GITHUB_OUTPUT
 
       - name: Upload signed artifacts
         uses: actions/upload-artifact@v4
@@ -46,5 +43,4 @@ jobs:
           name: signed-files
           path: |
             *.exe
-            *.sig
-            *.cert
+            *.bundle
